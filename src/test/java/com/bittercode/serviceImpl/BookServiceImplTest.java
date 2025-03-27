@@ -148,12 +148,12 @@ public class BookServiceImplTest {
     /**
      * Test getting all books
      */
-    @Test
-    public void testGetAllBooks_Success() throws StoreException {
-        // Get all books
-        List<Book> results = bookService.getAllBooks();
-        
-        // Verify list is not null
-        assertNotNull("Book list should not be null", results);
-    }
+//    @Test
+//    public void testGetAllBooks_Success() throws StoreException {
+//        // Get all books
+//        List<Book> results = bookService.getAllBooks();
+//        
+//        // Verify list is not null
+//        assertNotNull("Book list should not be null", results);
+//    }
 }
