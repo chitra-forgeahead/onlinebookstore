@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewBookServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onlinebookstore</a> &gt; <a href="index.source.html" class="el_package">servlets</a> &gt; <span class="el_source">ViewBookServlet.java</span></div><h1>ViewBookServlet.java</h1><pre class="source lang-java linenums">package servlets;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.bittercode.model.Book;
+import com.bittercode.model.UserRole;
+import com.bittercode.service.BookService;
+import com.bittercode.service.impl.BookServiceImpl;
+import com.bittercode.util.StoreUtil;
+
+<span class="nc" id="L20">public class ViewBookServlet extends HttpServlet {</span>
+
+    // book service for database operations and logics
+<span class="nc" id="L23">    BookService bookService = new BookServiceImpl();</span>
+
+    public void service(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+<span class="nc" id="L26">        PrintWriter pw = res.getWriter();</span>
+<span class="nc" id="L27">        res.setContentType(&quot;text/html&quot;);</span>
+
+        // Check if the customer is logged in, or else return to login page
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        if (!StoreUtil.isLoggedIn(UserRole.CUSTOMER, req.getSession())) {</span>
+<span class="nc" id="L31">            RequestDispatcher rd = req.getRequestDispatcher(&quot;CustomerLogin.html&quot;);</span>
+<span class="nc" id="L32">            rd.include(req, res);</span>
+<span class="nc" id="L33">            pw.println(&quot;&lt;table class=\&quot;tab\&quot;&gt;&lt;tr&gt;&lt;td&gt;Please Login First to Continue!!&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;);</span>
+<span class="nc" id="L34">            return;</span>
+        }
+        try {
+
+            // Read All available books from the database
+<span class="nc" id="L39">            List&lt;Book&gt; books = bookService.getAllBooks();</span>
+
+            // Default Page to load data into
+<span class="nc" id="L42">            RequestDispatcher rd = req.getRequestDispatcher(&quot;CustomerHome.html&quot;);</span>
+<span class="nc" id="L43">            rd.include(req, res);</span>
+
+            // Set Available Books tab as active
+<span class="nc" id="L46">            StoreUtil.setActiveTab(pw, &quot;books&quot;);</span>
+
+            // Show the heading for the page
+<span class="nc" id="L49">            pw.println(&quot;&lt;div id='topmid' style='background-color:grey'&gt;Available Books&quot;</span>
+                    + &quot;&lt;form action=\&quot;cart\&quot; method=\&quot;post\&quot; style='float:right; margin-right:20px'&gt;&quot;
+                    + &quot;&lt;input type='submit' class=\&quot;btn btn-primary\&quot; name='cart' value='Proceed'/&gt;&lt;/form&gt;&quot;
+                    + &quot;&lt;/div&gt;&quot;);
+<span class="nc" id="L53">            pw.println(&quot;&lt;div class=\&quot;container\&quot;&gt;\r\n&quot;</span>
+                    + &quot;        &lt;div class=\&quot;card-columns\&quot;&gt;&quot;);
+
+            // Add or Remove items from the cart, if requested
+<span class="nc" id="L57">            StoreUtil.updateCartItems(req);</span>
+
+<span class="nc" id="L59">            HttpSession session = req.getSession();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            for (Book book : books) {</span>
+
+                // Add each book to display as a card
+<span class="nc" id="L63">                pw.println(this.addBookToCard(session, book));</span>
+
+<span class="nc" id="L65">            }</span>
+
+            // Checkout Button
+<span class="nc" id="L68">            pw.println(&quot;&lt;/div&gt;&quot;</span>
+                    + &quot;&lt;div style='float:auto'&gt;&lt;form action=\&quot;cart\&quot; method=\&quot;post\&quot;&gt;&quot;
+                    + &quot;&lt;input type='submit' class=\&quot;btn btn-success\&quot; name='cart' value='Proceed to Checkout'/&gt;&lt;/form&gt;&quot;
+                    + &quot;    &lt;/div&gt;&quot;);
+
+<span class="nc" id="L73">        } catch (Exception e) {</span>
+<span class="nc" id="L74">            e.printStackTrace();</span>
+<span class="nc" id="L75">        }</span>
+<span class="nc" id="L76">    }</span>
+
+    public String addBookToCard(HttpSession session, Book book) {
+<span class="nc" id="L79">        String bCode = book.getBarcode();</span>
+<span class="nc" id="L80">        int bQty = book.getQuantity();</span>
+
+        // Quantity of the current book added to the cart
+<span class="nc" id="L83">        int cartItemQty = 0;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (session.getAttribute(&quot;qty_&quot; + bCode) != null) {</span>
+            // Quantity of each book in the cart will be added in the session prefixed with
+            // 'qty_' following with bookId
+<span class="nc" id="L87">            cartItemQty = (int) session.getAttribute(&quot;qty_&quot; + bCode);</span>
+        }
+
+        // Button To Add/Remove item from the cart
+<span class="nc" id="L91">        String button = &quot;&quot;;</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (bQty &gt; 0) {</span>
+            // If no items in the cart, show add to cart button
+            // If items is added to the cart, then show +, - button to add/remove more items
+<span class="nc" id="L95">            button = &quot;&lt;form action=\&quot;viewbook\&quot; method=\&quot;post\&quot;&gt;&quot;</span>
+                    + &quot;&lt;input type='hidden' name = 'selectedBookId' value = &quot; + bCode + &quot;&gt;&quot;
+                    + &quot;&lt;input type='hidden' name='qty_&quot; + bCode + &quot;' value='1'/&gt;&quot;
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                    + (cartItemQty == 0</span>
+<span class="nc" id="L99">                            ? &quot;&lt;input type='submit' class=\&quot;btn btn-primary\&quot; name='addToCart' value='Add To Cart'/&gt;&lt;/form&gt;&quot;</span>
+                            : &quot;&lt;form method='post' action='cart'&gt;&quot;
+                                    + &quot;&lt;button type='submit' name='removeFromCart' class=\&quot;glyphicon glyphicon-minus btn btn-danger\&quot;&gt;&lt;/button&gt; &quot;
+                                    + &quot;&lt;input type='hidden' name='selectedBookId' value='&quot; + bCode + &quot;'/&gt;&quot;
+                                    + cartItemQty
+<span class="nc" id="L104">                                    + &quot; &lt;button type='submit' name='addToCart' class=\&quot;glyphicon glyphicon-plus btn btn-success\&quot;&gt;&lt;/button&gt;&lt;/form&gt;&quot;)</span>
+                    + &quot;&quot;;
+        } else {
+            // If available Quantity is zero, show out of stock button
+<span class="nc" id="L108">            button = &quot;&lt;p class=\&quot;btn btn-danger\&quot;&gt;Out Of Stock&lt;/p&gt;\r\n&quot;;</span>
+        }
+
+        // Bootstrap card to show the book data
+<span class="nc" id="L112">        return &quot;&lt;div class=\&quot;card\&quot;&gt;\r\n&quot;</span>
+                + &quot;                &lt;div class=\&quot;row card-body\&quot;&gt;\r\n&quot;
+                + &quot;                    &lt;img class=\&quot;col-sm-6\&quot; src=\&quot;logo.png\&quot; alt=\&quot;Card image cap\&quot;&gt;\r\n&quot;
+                + &quot;                    &lt;div class=\&quot;col-sm-6\&quot;&gt;\r\n&quot;
+<span class="nc" id="L116">                + &quot;                        &lt;h5 class=\&quot;card-title text-success\&quot;&gt;&quot; + book.getName() + &quot;&lt;/h5&gt;\r\n&quot;</span>
+                + &quot;                        &lt;p class=\&quot;card-text\&quot;&gt;\r\n&quot;
+                + &quot;                        Author: &lt;span class=\&quot;text-primary\&quot; style=\&quot;font-weight:bold;\&quot;&gt; &quot;
+<span class="nc" id="L119">                + book.getAuthor()</span>
+                + &quot;&lt;/span&gt;&lt;br&gt;\r\n&quot;
+                + &quot;                        &lt;/p&gt;\r\n&quot;
+                + &quot;                        \r\n&quot;
+                + &quot;                    &lt;/div&gt;\r\n&quot;
+                + &quot;                &lt;/div&gt;\r\n&quot;
+                + &quot;                &lt;div class=\&quot;row card-body\&quot;&gt;\r\n&quot;
+                + &quot;                    &lt;div class=\&quot;col-sm-6\&quot;&gt;\r\n&quot;
+                + &quot;                        &lt;p class=\&quot;card-text\&quot;&gt;\r\n&quot;
+                + &quot;                        &lt;span&gt;Id: &quot; + bCode + &quot;&lt;/span&gt;\r\n&quot;
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                + (bQty &lt; 20 ? &quot;&lt;br&gt;&lt;span class=\&quot;text-danger\&quot;&gt;Only &quot; + bQty + &quot; items left&lt;/span&gt;\r\n&quot;</span>
+<span class="nc" id="L130">                        : &quot;&lt;br&gt;&lt;span class=\&quot;text-success\&quot;&gt;Trending&lt;/span&gt;\r\n&quot;)</span>
+                + &quot;                        &lt;/p&gt;\r\n&quot;
+                + &quot;                    &lt;/div&gt;\r\n&quot;
+                + &quot;                    &lt;div class=\&quot;col-sm-6\&quot;&gt;\r\n&quot;
+                + &quot;                        &lt;p class=\&quot;card-text\&quot;&gt;\r\n&quot;
+                + &quot;                        Price: &lt;span style=\&quot;font-weight:bold; color:green\&quot;&gt; &amp;#8377; &quot;
+<span class="nc" id="L136">                + book.getPrice()</span>
+                + &quot; &lt;/span&gt;\r\n&quot;
+                + &quot;                        &lt;/p&gt;\r\n&quot;
+                + button
+                + &quot;                    &lt;/div&gt;\r\n&quot;
+                + &quot;                &lt;/div&gt;\r\n&quot;
+                + &quot;            &lt;/div&gt;&quot;;
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

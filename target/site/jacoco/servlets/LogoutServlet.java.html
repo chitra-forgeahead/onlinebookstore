@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogoutServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onlinebookstore</a> &gt; <a href="index.source.html" class="el_package">servlets</a> &gt; <span class="el_source">LogoutServlet.java</span></div><h1>LogoutServlet.java</h1><pre class="source lang-java linenums">package servlets;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.bittercode.constant.BookStoreConstants;
+import com.bittercode.service.UserService;
+import com.bittercode.service.impl.UserServiceImpl;
+
+<span class="nc" id="L16">public class LogoutServlet extends HttpServlet {</span>
+
+<span class="nc" id="L18">    UserService authService = new UserServiceImpl();</span>
+
+    public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+<span class="nc" id="L21">        PrintWriter pw = res.getWriter();</span>
+<span class="nc" id="L22">        res.setContentType(BookStoreConstants.CONTENT_TYPE_TEXT_HTML);</span>
+        try {
+
+<span class="nc" id="L25">            boolean logout = authService.logout(req.getSession());</span>
+
+<span class="nc" id="L27">            RequestDispatcher rd = req.getRequestDispatcher(&quot;CustomerLogin.html&quot;);</span>
+<span class="nc" id="L28">            rd.include(req, res);</span>
+//            StoreUtil.setActiveTab(pw, &quot;logout&quot;);
+<span class="nc bnc" id="L30" title="All 2 branches missed.">            if (logout) {</span>
+<span class="nc" id="L31">                pw.println(&quot;&lt;table class=\&quot;tab\&quot;&gt;&lt;tr&gt;&lt;td&gt;Successfully logged out!&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;);</span>
+            }
+
+<span class="nc" id="L34">        } catch (Exception e) {</span>
+<span class="nc" id="L35">            e.printStackTrace();</span>
+<span class="nc" id="L36">        }</span>
+<span class="nc" id="L37">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

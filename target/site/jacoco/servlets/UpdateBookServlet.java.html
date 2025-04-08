@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UpdateBookServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onlinebookstore</a> &gt; <a href="index.source.html" class="el_package">servlets</a> &gt; <span class="el_source">UpdateBookServlet.java</span></div><h1>UpdateBookServlet.java</h1><pre class="source lang-java linenums">package servlets;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.bittercode.constant.BookStoreConstants;
+import com.bittercode.constant.ResponseCode;
+import com.bittercode.constant.db.BooksDBConstants;
+import com.bittercode.model.Book;
+import com.bittercode.model.UserRole;
+import com.bittercode.service.BookService;
+import com.bittercode.service.impl.BookServiceImpl;
+import com.bittercode.util.StoreUtil;
+
+<span class="nc" id="L21">public class UpdateBookServlet extends HttpServlet {</span>
+<span class="nc" id="L22">    BookService bookService = new BookServiceImpl();</span>
+
+    public void service(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+<span class="nc" id="L25">        PrintWriter pw = res.getWriter();</span>
+<span class="nc" id="L26">        res.setContentType(BookStoreConstants.CONTENT_TYPE_TEXT_HTML);</span>
+
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        if (!StoreUtil.isLoggedIn(UserRole.SELLER, req.getSession())) {</span>
+<span class="nc" id="L29">            RequestDispatcher rd = req.getRequestDispatcher(&quot;SellerLogin.html&quot;);</span>
+<span class="nc" id="L30">            rd.include(req, res);</span>
+<span class="nc" id="L31">            pw.println(&quot;&lt;table class=\&quot;tab\&quot;&gt;&lt;tr&gt;&lt;td&gt;Please Login First to Continue!!&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;);</span>
+<span class="nc" id="L32">            return;</span>
+        }
+
+<span class="nc" id="L35">        RequestDispatcher rd = req.getRequestDispatcher(&quot;SellerHome.html&quot;);</span>
+<span class="nc" id="L36">        rd.include(req, res);</span>
+<span class="nc" id="L37">        StoreUtil.setActiveTab(pw, &quot;storebooks&quot;);</span>
+<span class="nc" id="L38">        pw.println(&quot;&lt;div class='container my-2'&gt;&quot;);</span>
+
+        try {
+<span class="nc bnc" id="L41" title="All 2 branches missed.">            if (req.getParameter(&quot;updateFormSubmitted&quot;) != null) {</span>
+<span class="nc" id="L42">                String bName = req.getParameter(BooksDBConstants.COLUMN_NAME);</span>
+<span class="nc" id="L43">                String bCode = req.getParameter(BooksDBConstants.COLUMN_BARCODE);</span>
+<span class="nc" id="L44">                String bAuthor = req.getParameter(BooksDBConstants.COLUMN_AUTHOR);</span>
+<span class="nc" id="L45">                double bPrice = Double.parseDouble(req.getParameter(BooksDBConstants.COLUMN_PRICE));</span>
+<span class="nc" id="L46">                int bQty = Integer.parseInt(req.getParameter(BooksDBConstants.COLUMN_QUANTITY));</span>
+
+<span class="nc" id="L48">                Book book = new Book(bCode, bName, bAuthor, bPrice, bQty);</span>
+<span class="nc" id="L49">                String message = bookService.updateBook(book);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">                if (ResponseCode.SUCCESS.name().equalsIgnoreCase(message)) {</span>
+<span class="nc" id="L51">                    pw.println(</span>
+                            &quot;&lt;table class=\&quot;tab\&quot;&gt;&lt;tr&gt;&lt;td&gt;Book Detail Updated Successfully!&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;);
+                } else {
+<span class="nc" id="L54">                    pw.println(&quot;&lt;table class=\&quot;tab\&quot;&gt;&lt;tr&gt;&lt;td&gt;Failed to Update Book!!&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;);</span>
+                    // rd.include(req, res);
+                }
+
+<span class="nc" id="L58">                return;</span>
+            }
+
+<span class="nc" id="L61">            String bookId = req.getParameter(&quot;bookId&quot;);</span>
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (bookId != null) {</span>
+<span class="nc" id="L64">                Book book = bookService.getBookById(bookId);</span>
+<span class="nc" id="L65">                showUpdateBookForm(pw, book);</span>
+            }
+
+<span class="nc" id="L68">        } catch (Exception e) {</span>
+<span class="nc" id="L69">            e.printStackTrace();</span>
+<span class="nc" id="L70">            pw.println(&quot;&lt;table class=\&quot;tab\&quot;&gt;&lt;tr&gt;&lt;td&gt;Failed to Load Book data!!&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;);</span>
+<span class="nc" id="L71">        }</span>
+<span class="nc" id="L72">    }</span>
+
+    private static void showUpdateBookForm(PrintWriter pw, Book book) {
+<span class="nc" id="L75">        String form = &quot;&lt;table class=\&quot;tab my-5\&quot; style=\&quot;width:40%;\&quot;&gt;\r\n&quot;</span>
+                + &quot;        &lt;tr&gt;\r\n&quot;
+                + &quot;            &lt;td&gt;\r\n&quot;
+                + &quot;                &lt;form action=\&quot;updatebook\&quot; method=\&quot;post\&quot;&gt;\r\n&quot;
+                + &quot;                    &lt;label for=\&quot;bookCode\&quot;&gt;Book Code : &lt;/label&gt;&lt;input type=\&quot;text\&quot; name=\&quot;barcode\&quot; id=\&quot;bookCode\&quot; placeholder=\&quot;Enter Book Code\&quot; value='&quot;
+<span class="nc" id="L80">                + book.getBarcode() + &quot;' readonly&gt;&lt;br/&gt;&quot;</span>
+                + &quot;                    &lt;label for=\&quot;bookName\&quot;&gt;Book Name : &lt;/label&gt; &lt;input type=\&quot;text\&quot; name=\&quot;name\&quot; id=\&quot;bookName\&quot; placeholder=\&quot;Enter Book's name\&quot; value='&quot;
+<span class="nc" id="L82">                + book.getName() + &quot;' required&gt;&lt;br/&gt;\r\n&quot;</span>
+                + &quot;                    &lt;label for=\&quot;bookAuthor\&quot;&gt;Book Author : &lt;/label&gt;&lt;input type=\&quot;text\&quot; name=\&quot;author\&quot; id=\&quot;bookAuthor\&quot; placeholder=\&quot;Enter Author's Name\&quot; value='&quot;
+<span class="nc" id="L84">                + book.getAuthor() + &quot;' required&gt;&lt;br/&gt;\r\n&quot;</span>
+                + &quot;                    &lt;label for=\&quot;bookPrice\&quot;&gt;Book Price : &lt;/label&gt;&lt;input type=\&quot;number\&quot; name=\&quot;price\&quot; placeholder=\&quot;Enter the Price\&quot; value='&quot;
+<span class="nc" id="L86">                + book.getPrice() + &quot;' required&gt;&lt;br/&gt;\r\n&quot;</span>
+                + &quot;                    &lt;label for=\&quot;bookQuantity\&quot;&gt;Book Qnty : &lt;/label&gt;&lt;input type=\&quot;number\&quot; name=\&quot;quantity\&quot; id=\&quot;bookQuantity\&quot; placeholder=\&quot;Enter the quantity\&quot; value='&quot;
+<span class="nc" id="L88">                + book.getQuantity() + &quot;' required&gt;&lt;br/&gt;\r\n&quot;</span>
+                + &quot;                    &lt;input class=\&quot;btn btn-success my-2\&quot; type=\&quot;submit\&quot; name='updateFormSubmitted' value=\&quot; Update Book \&quot;&gt;\r\n&quot;
+                + &quot;                &lt;/form&gt;\r\n&quot;
+                + &quot;            &lt;/td&gt;\r\n&quot;
+                + &quot;        &lt;/tr&gt;  \r\n&quot;
+                + &quot;    &lt;/table&gt;&quot;;
+<span class="nc" id="L94">        pw.println(form);</span>
+<span class="nc" id="L95">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DatabaseConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onlinebookstore</a> &gt; <a href="index.source.html" class="el_package">com.bittercode.util</a> &gt; <span class="el_source">DatabaseConfig.java</span></div><h1>DatabaseConfig.java</h1><pre class="source lang-java linenums">package com.bittercode.util;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+<span class="nc" id="L7">class DatabaseConfig {</span>
+
+<span class="fc" id="L9">    static Properties prop = new Properties();</span>
+    static {
+
+<span class="fc" id="L12">        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();</span>
+<span class="fc" id="L13">        InputStream input = classLoader.getResourceAsStream(&quot;application.properties&quot;);</span>
+
+        try {
+<span class="fc" id="L16">            prop.load(input);</span>
+<span class="nc" id="L17">        } catch (IOException e) {</span>
+<span class="nc" id="L18">            e.printStackTrace();</span>
+<span class="fc" id="L19">        }</span>
+    }
+
+<span class="fc" id="L22">    public final static String DRIVER_NAME = prop.getProperty(&quot;db.driver&quot;);</span>
+<span class="fc" id="L23">    public final static String DB_HOST = prop.getProperty(&quot;db.host&quot;);</span>
+<span class="fc" id="L24">    public final static String DB_PORT = prop.getProperty(&quot;db.port&quot;);</span>
+<span class="fc" id="L25">    public final static String DB_NAME = prop.getProperty(&quot;db.name&quot;);</span>
+<span class="fc" id="L26">    public final static String DB_USER_NAME = prop.getProperty(&quot;db.username&quot;);</span>
+<span class="fc" id="L27">    public final static String DB_PASSWORD = prop.getProperty(&quot;db.password&quot;);</span>
+<span class="fc" id="L28">    public final static String CONNECTION_STRING = DB_HOST + &quot;:&quot; + DB_PORT + &quot;/&quot; + DB_NAME;</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>User.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onlinebookstore</a> &gt; <a href="index.source.html" class="el_package">com.bittercode.model</a> &gt; <span class="el_source">User.java</span></div><h1>User.java</h1><pre class="source lang-java linenums">package com.bittercode.model;
+
+import java.io.Serializable;
+import java.util.List;
+
+<span class="fc" id="L6">public class User implements Serializable {</span>
+
+    private String emailId;
+    private String password;
+    private String firstName;
+    private String lastName;
+    private Long phone;
+    private String address;
+    private List&lt;UserRole&gt; roles;
+
+    public String getEmailId() {
+<span class="fc" id="L17">        return emailId;</span>
+    }
+
+    public void setEmailId(String emailId) {
+<span class="fc" id="L21">        this.emailId = emailId;</span>
+<span class="fc" id="L22">    }</span>
+
+    public String getPassword() {
+<span class="fc" id="L25">        return password;</span>
+    }
+
+    public void setPassword(String password) {
+<span class="fc" id="L29">        this.password = password;</span>
+<span class="fc" id="L30">    }</span>
+
+    public String getFirstName() {
+<span class="fc" id="L33">        return firstName;</span>
+    }
+
+    public void setFirstName(String firstName) {
+<span class="fc" id="L37">        this.firstName = firstName;</span>
+<span class="fc" id="L38">    }</span>
+
+    public String getLastName() {
+<span class="fc" id="L41">        return lastName;</span>
+    }
+
+    public void setLastName(String lastName) {
+<span class="fc" id="L45">        this.lastName = lastName;</span>
+<span class="fc" id="L46">    }</span>
+
+    public Long getPhone() {
+<span class="fc" id="L49">        return phone;</span>
+    }
+
+    public void setPhone(Long phone) {
+<span class="fc" id="L53">        this.phone = phone;</span>
+<span class="fc" id="L54">    }</span>
+
+    public String getAddress() {
+<span class="fc" id="L57">        return address;</span>
+    }
+
+    public void setAddress(String address) {
+<span class="fc" id="L61">        this.address = address;</span>
+<span class="fc" id="L62">    }</span>
+
+    public List&lt;UserRole&gt; getRoles() {
+<span class="nc" id="L65">        return roles;</span>
+    }
+
+    public void setRoles(List&lt;UserRole&gt; roles) {
+<span class="nc" id="L69">        this.roles = roles;</span>
+<span class="nc" id="L70">    }</span>
+
+//    public static User retrieveFromHttpServletRequest(HttpServletRequest req) {
+//        User user = new User();
+//        String pWord = req.getParameter(UsersDBConstants.COLUMN_PASSWORD);
+//        String fName = req.getParameter(UsersDBConstants.COLUMN_FIRSTNAME);
+//        String lName = req.getParameter(UsersDBConstants.COLUMN_LASTNAME);
+//        String addr = req.getParameter(UsersDBConstants.COLUMN_ADDRESS);
+//        String phNo = req.getParameter(UsersDBConstants.COLUMN_PHONE);
+//        String mailId = req.getParameter(UsersDBConstants.COLUMN_MAILID);
+//        user.setEmailId(mailId);
+//        user.setFirstName(fName);
+//        user.setLastName(lName);
+//        user.setPassword(pWord);
+//        user.setPhone(Long.parseLong(phNo));
+//        user.setAddress(addr);
+//        return user;
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

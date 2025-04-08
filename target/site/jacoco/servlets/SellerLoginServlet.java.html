@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SellerLoginServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onlinebookstore</a> &gt; <a href="index.source.html" class="el_package">servlets</a> &gt; <span class="el_source">SellerLoginServlet.java</span></div><h1>SellerLoginServlet.java</h1><pre class="source lang-java linenums">package servlets;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.bittercode.constant.BookStoreConstants;
+import com.bittercode.constant.db.UsersDBConstants;
+import com.bittercode.model.User;
+import com.bittercode.model.UserRole;
+import com.bittercode.service.UserService;
+import com.bittercode.service.impl.UserServiceImpl;
+
+<span class="nc" id="L19">public class SellerLoginServlet extends HttpServlet {</span>
+
+<span class="nc" id="L21">    UserService userService = new UserServiceImpl();</span>
+
+    public void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+<span class="nc" id="L24">        PrintWriter pw = res.getWriter();</span>
+<span class="nc" id="L25">        res.setContentType(BookStoreConstants.CONTENT_TYPE_TEXT_HTML);</span>
+<span class="nc" id="L26">        String uName = req.getParameter(UsersDBConstants.COLUMN_USERNAME);</span>
+<span class="nc" id="L27">        String pWord = req.getParameter(UsersDBConstants.COLUMN_PASSWORD);</span>
+        try {
+<span class="nc" id="L29">            User user = userService.login(UserRole.SELLER, uName, pWord, req.getSession());</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">            if (user != null) {</span>
+<span class="nc" id="L31">                RequestDispatcher rd = req.getRequestDispatcher(&quot;SellerHome.html&quot;);</span>
+
+<span class="nc" id="L33">                rd.include(req, res);</span>
+<span class="nc" id="L34">                pw.println(&quot;    &lt;div id=\&quot;topmid\&quot;&gt;&lt;h1&gt;Welcome to Online &lt;br&gt;Book Store&lt;/h1&gt;&lt;/div&gt;\r\n&quot;</span>
+                        + &quot;    &lt;br&gt;\r\n&quot;
+                        + &quot;    &lt;table class=\&quot;tab\&quot;&gt;\r\n&quot;
+                        + &quot;        &lt;tr&gt;\r\n&quot;
+<span class="nc" id="L38">                        + &quot;            &lt;td&gt;&lt;p&gt;Welcome &quot;+user.getFirstName()+&quot;, Happy Learning !!&lt;/p&gt;&lt;/td&gt;\r\n&quot;</span>
+                        + &quot;        &lt;/tr&gt;\r\n&quot;
+                        + &quot;    &lt;/table&gt;&quot;);
+<span class="nc" id="L41">            } else {</span>
+
+<span class="nc" id="L43">                RequestDispatcher rd = req.getRequestDispatcher(&quot;SellerLogin.html&quot;);</span>
+<span class="nc" id="L44">                rd.include(req, res);</span>
+<span class="nc" id="L45">                pw.println(&quot;&lt;div class=\&quot;tab\&quot;&gt;Incorrect UserName or PassWord&lt;/div&gt;&quot;);</span>
+            }
+
+<span class="nc" id="L48">        } catch (Exception e) {</span>
+<span class="nc" id="L49">            e.printStackTrace();</span>
+<span class="nc" id="L50">        }</span>
+<span class="nc" id="L51">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

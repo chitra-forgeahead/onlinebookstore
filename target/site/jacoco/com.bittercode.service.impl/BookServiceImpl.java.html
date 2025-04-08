@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onlinebookstore</a> &gt; <a href="index.source.html" class="el_package">com.bittercode.service.impl</a> &gt; <span class="el_source">BookServiceImpl.java</span></div><h1>BookServiceImpl.java</h1><pre class="source lang-java linenums">package com.bittercode.service.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.bittercode.constant.ResponseCode;
+import com.bittercode.constant.db.BooksDBConstants;
+import com.bittercode.model.Book;
+import com.bittercode.model.StoreException;
+import com.bittercode.service.BookService;
+import com.bittercode.util.DBUtil;
+
+<span class="fc" id="L17">public class BookServiceImpl implements BookService {</span>
+
+    private static final String getAllBooksQuery = &quot;SELECT * FROM &quot; + BooksDBConstants.TABLE_BOOK;
+    private static final String getBookByIdQuery = &quot;SELECT * FROM &quot; + BooksDBConstants.TABLE_BOOK
+            + &quot; WHERE &quot; + BooksDBConstants.COLUMN_BARCODE + &quot; = ?&quot;;
+
+    private static final String deleteBookByIdQuery = &quot;DELETE FROM &quot; + BooksDBConstants.TABLE_BOOK + &quot;  WHERE &quot;
+            + BooksDBConstants.COLUMN_BARCODE + &quot;=?&quot;;
+
+    private static final String addBookQuery = &quot;INSERT INTO &quot; + BooksDBConstants.TABLE_BOOK + &quot;  VALUES(?,?,?,?,?)&quot;;
+
+    private static final String updateBookQtyByIdQuery = &quot;UPDATE &quot; + BooksDBConstants.TABLE_BOOK + &quot; SET &quot;
+            + BooksDBConstants.COLUMN_QUANTITY + &quot;=? WHERE &quot; + BooksDBConstants.COLUMN_BARCODE
+            + &quot;=?&quot;;
+
+    private static final String updateBookByIdQuery = &quot;UPDATE &quot; + BooksDBConstants.TABLE_BOOK + &quot; SET &quot;
+            + BooksDBConstants.COLUMN_NAME + &quot;=? , &quot;
+            + BooksDBConstants.COLUMN_AUTHOR + &quot;=?, &quot;
+            + BooksDBConstants.COLUMN_PRICE + &quot;=?, &quot;
+            + BooksDBConstants.COLUMN_QUANTITY + &quot;=? &quot;
+            + &quot;  WHERE &quot; + BooksDBConstants.COLUMN_BARCODE
+            + &quot;=?&quot;;
+
+    @Override
+    public Book getBookById(String bookId) throws StoreException {
+<span class="fc" id="L42">        Book book = null;</span>
+<span class="fc" id="L43">        Connection con = DBUtil.getConnection();</span>
+        try {
+<span class="fc" id="L45">            PreparedStatement ps = con.prepareStatement(getBookByIdQuery);</span>
+<span class="fc" id="L46">            ps.setString(1, bookId);</span>
+<span class="fc" id="L47">            ResultSet rs = ps.executeQuery();</span>
+
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">            while (rs.next()) {</span>
+<span class="nc" id="L50">                String bCode = rs.getString(1);</span>
+<span class="nc" id="L51">                String bName = rs.getString(2);</span>
+<span class="nc" id="L52">                String bAuthor = rs.getString(3);</span>
+<span class="nc" id="L53">                int bPrice = rs.getInt(4);</span>
+<span class="nc" id="L54">                int bQty = rs.getInt(5);</span>
+
+<span class="nc" id="L56">                book = new Book(bCode, bName, bAuthor, bPrice, bQty);</span>
+<span class="nc" id="L57">            }</span>
+<span class="nc" id="L58">        } catch (SQLException e) {</span>
+
+<span class="fc" id="L60">        }</span>
+<span class="fc" id="L61">        return book;</span>
+    }
+
+    @Override
+    public List&lt;Book&gt; getAllBooks() throws StoreException {
+<span class="nc" id="L66">        List&lt;Book&gt; books = new ArrayList&lt;Book&gt;();</span>
+<span class="nc" id="L67">        Connection con = DBUtil.getConnection();</span>
+
+        try {
+<span class="nc" id="L70">            PreparedStatement ps = con.prepareStatement(getAllBooksQuery);</span>
+<span class="nc" id="L71">            ResultSet rs = ps.executeQuery();</span>
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            while (rs.next()) {</span>
+<span class="nc" id="L74">                String bCode = rs.getString(1);</span>
+<span class="nc" id="L75">                String bName = rs.getString(2);</span>
+<span class="nc" id="L76">                String bAuthor = rs.getString(3);</span>
+<span class="nc" id="L77">                int bPrice = rs.getInt(4);</span>
+<span class="nc" id="L78">                int bQty = rs.getInt(5);</span>
+
+<span class="nc" id="L80">                Book book = new Book(bCode, bName, bAuthor, bPrice, bQty);</span>
+<span class="nc" id="L81">                books.add(book);</span>
+<span class="nc" id="L82">            }</span>
+<span class="nc" id="L83">        } catch (SQLException e) {</span>
+
+<span class="nc" id="L85">        }</span>
+<span class="nc" id="L86">        return books;</span>
+    }
+
+    @Override
+    public String deleteBookById(String bookId) throws StoreException {
+<span class="fc" id="L91">        String response = ResponseCode.FAILURE.name();</span>
+<span class="fc" id="L92">        Connection con = DBUtil.getConnection();</span>
+        try {
+<span class="fc" id="L94">            PreparedStatement ps = con.prepareStatement(deleteBookByIdQuery);</span>
+<span class="fc" id="L95">            ps.setString(1, bookId);</span>
+<span class="fc" id="L96">            int k = ps.executeUpdate();</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            if (k == 1) {</span>
+<span class="fc" id="L98">                response = ResponseCode.SUCCESS.name();</span>
+            }
+<span class="nc" id="L100">        } catch (Exception e) {</span>
+<span class="nc" id="L101">            response += &quot; : &quot; + e.getMessage();</span>
+<span class="nc" id="L102">            e.printStackTrace();</span>
+<span class="fc" id="L103">        }</span>
+<span class="fc" id="L104">        return response;</span>
+    }
+
+    @Override
+    public String addBook(Book book) throws StoreException {
+<span class="fc" id="L109">        String responseCode = ResponseCode.FAILURE.name();</span>
+<span class="fc" id="L110">        Connection con = DBUtil.getConnection();</span>
+        try {
+<span class="fc" id="L112">            PreparedStatement ps = con.prepareStatement(addBookQuery);</span>
+<span class="fc" id="L113">            ps.setString(1, book.getBarcode());</span>
+<span class="fc" id="L114">            ps.setString(2, book.getName());</span>
+<span class="fc" id="L115">            ps.setString(3, book.getAuthor());</span>
+<span class="fc" id="L116">            ps.setDouble(4, book.getPrice());</span>
+<span class="fc" id="L117">            ps.setInt(5, book.getQuantity());</span>
+<span class="fc" id="L118">            int k = ps.executeUpdate();</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">            if (k == 1) {</span>
+<span class="fc" id="L120">                responseCode = ResponseCode.SUCCESS.name();</span>
+            }
+<span class="fc" id="L122">        } catch (Exception e) {</span>
+<span class="fc" id="L123">            responseCode += &quot; : &quot; + e.getMessage();</span>
+<span class="fc" id="L124">            e.printStackTrace();</span>
+<span class="fc" id="L125">        }</span>
+<span class="fc" id="L126">        return responseCode;</span>
+    }
+
+    @Override
+    public String updateBookQtyById(String bookId, int quantity) throws StoreException {
+<span class="fc" id="L131">        String responseCode = ResponseCode.FAILURE.name();</span>
+<span class="fc" id="L132">        Connection con = DBUtil.getConnection();</span>
+        try {
+<span class="fc" id="L134">            PreparedStatement ps = con.prepareStatement(updateBookQtyByIdQuery);</span>
+<span class="fc" id="L135">            ps.setInt(1, quantity);</span>
+<span class="fc" id="L136">            ps.setString(2, bookId);</span>
+<span class="fc" id="L137">            ps.executeUpdate();</span>
+<span class="fc" id="L138">            responseCode = ResponseCode.SUCCESS.name();</span>
+<span class="nc" id="L139">        } catch (Exception e) {</span>
+<span class="nc" id="L140">            responseCode += &quot; : &quot; + e.getMessage();</span>
+<span class="nc" id="L141">            e.printStackTrace();</span>
+<span class="fc" id="L142">        }</span>
+<span class="fc" id="L143">        return responseCode;</span>
+    }
+
+    @Override
+    public List&lt;Book&gt; getBooksByCommaSeperatedBookIds(String commaSeperatedBookIds) throws StoreException {
+<span class="fc" id="L148">        List&lt;Book&gt; books = new ArrayList&lt;Book&gt;();</span>
+<span class="fc" id="L149">        Connection con = DBUtil.getConnection();</span>
+        try {
+<span class="fc" id="L151">            String getBooksByCommaSeperatedBookIdsQuery = &quot;SELECT * FROM &quot; + BooksDBConstants.TABLE_BOOK</span>
+                    + &quot; WHERE &quot; +
+                    BooksDBConstants.COLUMN_BARCODE + &quot; IN ( &quot; + commaSeperatedBookIds + &quot; )&quot;;
+<span class="fc" id="L154">            PreparedStatement ps = con.prepareStatement(getBooksByCommaSeperatedBookIdsQuery);</span>
+<span class="fc" id="L155">            ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc bfc" id="L157" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L158">                String bCode = rs.getString(1);</span>
+<span class="fc" id="L159">                String bName = rs.getString(2);</span>
+<span class="fc" id="L160">                String bAuthor = rs.getString(3);</span>
+<span class="fc" id="L161">                int bPrice = rs.getInt(4);</span>
+<span class="fc" id="L162">                int bQty = rs.getInt(5);</span>
+
+<span class="fc" id="L164">                Book book = new Book(bCode, bName, bAuthor, bPrice, bQty);</span>
+<span class="fc" id="L165">                books.add(book);</span>
+<span class="fc" id="L166">            }</span>
+<span class="nc" id="L167">        } catch (SQLException e) {</span>
+
+<span class="fc" id="L169">        }</span>
+<span class="fc" id="L170">        return books;</span>
+    }
+
+    @Override
+    public String updateBook(Book book) throws StoreException {
+<span class="nc" id="L175">        String responseCode = ResponseCode.FAILURE.name();</span>
+<span class="nc" id="L176">        Connection con = DBUtil.getConnection();</span>
+        try {
+<span class="nc" id="L178">            PreparedStatement ps = con.prepareStatement(updateBookByIdQuery);</span>
+<span class="nc" id="L179">            ps.setString(1, book.getName());</span>
+<span class="nc" id="L180">            ps.setString(2, book.getAuthor());</span>
+<span class="nc" id="L181">            ps.setDouble(3, book.getPrice());</span>
+<span class="nc" id="L182">            ps.setInt(4, book.getQuantity());</span>
+<span class="nc" id="L183">            ps.setString(5, book.getBarcode());</span>
+<span class="nc" id="L184">            ps.executeUpdate();</span>
+<span class="nc" id="L185">            responseCode = ResponseCode.SUCCESS.name();</span>
+<span class="nc" id="L186">        } catch (Exception e) {</span>
+<span class="nc" id="L187">            responseCode += &quot; : &quot; + e.getMessage();</span>
+<span class="nc" id="L188">            e.printStackTrace();</span>
+<span class="nc" id="L189">        }</span>
+<span class="nc" id="L190">        return responseCode;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

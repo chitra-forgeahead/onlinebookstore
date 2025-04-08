@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorHandlerServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onlinebookstore</a> &gt; <a href="index.source.html" class="el_package">servlets</a> &gt; <span class="el_source">ErrorHandlerServlet.java</span></div><h1>ErrorHandlerServlet.java</h1><pre class="source lang-java linenums">package servlets;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Optional;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.bittercode.constant.ResponseCode;
+import com.bittercode.model.StoreException;
+import com.bittercode.model.UserRole;
+import com.bittercode.util.StoreUtil;
+
+<span class="nc" id="L18">public class ErrorHandlerServlet extends HttpServlet {</span>
+
+    public void service(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+<span class="nc" id="L21">        PrintWriter pw = res.getWriter();</span>
+<span class="nc" id="L22">        res.setContentType(&quot;text/html&quot;);</span>
+
+        // Fetch the exceptions
+<span class="nc" id="L25">        Throwable throwable = (Throwable) req.getAttribute(&quot;javax.servlet.error.exception&quot;);</span>
+<span class="nc" id="L26">        Integer statusCode = (Integer) req.getAttribute(&quot;javax.servlet.error.status_code&quot;);</span>
+<span class="nc" id="L27">        String servletName = (String) req.getAttribute(&quot;javax.servlet.error.servlet_name&quot;);</span>
+<span class="nc" id="L28">        String requestUri = (String) req.getAttribute(&quot;javax.servlet.error.request_uri&quot;);</span>
+<span class="nc" id="L29">        String errorMessage = ResponseCode.INTERNAL_SERVER_ERROR.getMessage();</span>
+<span class="nc" id="L30">        String errorCode = ResponseCode.INTERNAL_SERVER_ERROR.name();</span>
+
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        if (statusCode == null)</span>
+<span class="nc" id="L33">            statusCode = 0;</span>
+<span class="nc" id="L34">        Optional&lt;ResponseCode&gt; errorCodes = ResponseCode.getMessageByStatusCode(statusCode);</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        if (errorCodes.isPresent()) {</span>
+<span class="nc" id="L36">            errorMessage = errorCodes.get().getMessage();</span>
+<span class="nc" id="L37">            errorCode = errorCodes.get().name();</span>
+        }
+
+<span class="nc bnc" id="L40" title="All 4 branches missed.">        if (throwable != null &amp;&amp; throwable instanceof StoreException) {</span>
+<span class="nc" id="L41">            StoreException storeException = (StoreException) throwable;</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">            if (storeException != null) {</span>
+<span class="nc" id="L43">                errorMessage = storeException.getMessage();</span>
+<span class="nc" id="L44">                statusCode = storeException.getStatusCode();</span>
+<span class="nc" id="L45">                errorCode = storeException.getErrorCode();</span>
+<span class="nc" id="L46">                storeException.printStackTrace();</span>
+            }
+        }
+
+<span class="nc" id="L50">        System.out.println(&quot;======ERROR TRIGGERED========&quot;);</span>
+<span class="nc" id="L51">        System.out.println(&quot;Servlet Name: &quot; + servletName);</span>
+<span class="nc" id="L52">        System.out.println(&quot;Request URI: &quot; + requestUri);</span>
+<span class="nc" id="L53">        System.out.println(&quot;Status Code: &quot; + statusCode);</span>
+<span class="nc" id="L54">        System.out.println(&quot;Error Code: &quot; + errorCode);</span>
+<span class="nc" id="L55">        System.out.println(&quot;Error Message: &quot; + errorMessage);</span>
+<span class="nc" id="L56">        System.out.println(&quot;=============================&quot;);</span>
+
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (StoreUtil.isLoggedIn(UserRole.CUSTOMER, req.getSession())) {</span>
+<span class="nc" id="L59">            RequestDispatcher rd = req.getRequestDispatcher(&quot;CustomerHome.html&quot;);</span>
+<span class="nc" id="L60">            rd.include(req, res);</span>
+<span class="nc" id="L61">            StoreUtil.setActiveTab(pw, &quot;home&quot;);</span>
+<span class="nc" id="L62">            showErrorMessage(pw, errorCode, errorMessage);</span>
+
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        } else if (StoreUtil.isLoggedIn(UserRole.SELLER, req.getSession())) {</span>
+<span class="nc" id="L65">            RequestDispatcher rd = req.getRequestDispatcher(&quot;SellerHome.html&quot;);</span>
+<span class="nc" id="L66">            rd.include(req, res);</span>
+<span class="nc" id="L67">            StoreUtil.setActiveTab(pw, &quot;home&quot;);</span>
+<span class="nc" id="L68">            showErrorMessage(pw, errorCode, errorMessage);</span>
+
+<span class="nc" id="L70">        } else {</span>
+<span class="nc" id="L71">            RequestDispatcher rd = req.getRequestDispatcher(&quot;index.html&quot;);</span>
+<span class="nc" id="L72">            rd.include(req, res);</span>
+<span class="nc" id="L73">            pw.println(&quot;&lt;script&gt;&quot;</span>
+                    + &quot;document.getElementById('topmid').innerHTML='';&quot;
+                    + &quot;document.getElementById('happy').innerHTML='';&quot;
+                    + &quot;&lt;/script&gt;&quot;);
+<span class="nc" id="L77">            showErrorMessage(pw, errorCode, errorMessage);</span>
+        }
+
+<span class="nc" id="L80">    }</span>
+
+    private void showErrorMessage(PrintWriter pw, String errorCode, String errorMessage) {
+<span class="nc" id="L83">        pw.println(&quot;&lt;div class='container my-5'&gt;&quot;</span>
+                + &quot;&lt;div class=\&quot;alert alert-success\&quot; role=\&quot;alert\&quot; style='max-width:450px; text-align:center; margin:auto;'&gt;\r\n&quot;
+                + &quot;  &lt;h4 class=\&quot;alert-heading\&quot;&gt;&quot;
+                + errorCode
+                + &quot;&lt;/h4&gt;\r\n&quot;
+                + &quot;  &lt;hr&gt;\r\n&quot;
+                + &quot;  &lt;p class=\&quot;mb-0\&quot;&gt;&quot;
+                + errorMessage
+                + &quot;&lt;/p&gt;\r\n&quot;
+                + &quot;&lt;/div&gt;&quot;
+                + &quot;&lt;/div&gt;&quot;);
+
+<span class="nc" id="L95">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

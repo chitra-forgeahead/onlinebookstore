@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReceiptServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">onlinebookstore</a> &gt; <a href="index.source.html" class="el_package">servlets</a> &gt; <span class="el_source">ReceiptServlet.java</span></div><h1>ReceiptServlet.java</h1><pre class="source lang-java linenums">package servlets;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.bittercode.constant.BookStoreConstants;
+import com.bittercode.model.Book;
+import com.bittercode.model.UserRole;
+import com.bittercode.service.BookService;
+import com.bittercode.service.impl.BookServiceImpl;
+import com.bittercode.util.StoreUtil;
+
+<span class="nc" id="L20">public class ReceiptServlet extends HttpServlet {</span>
+<span class="nc" id="L21">    BookService bookService = new BookServiceImpl();</span>
+
+    //NOT_IN_USED
+    public void service(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+<span class="nc" id="L25">        PrintWriter pw = res.getWriter();</span>
+<span class="nc" id="L26">        res.setContentType(BookStoreConstants.CONTENT_TYPE_TEXT_HTML);</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        if (!StoreUtil.isLoggedIn(UserRole.CUSTOMER, req.getSession())) {</span>
+<span class="nc" id="L28">            RequestDispatcher rd = req.getRequestDispatcher(&quot;CustomerLogin.html&quot;);</span>
+<span class="nc" id="L29">            rd.include(req, res);</span>
+<span class="nc" id="L30">            pw.println(&quot;&lt;table class=\&quot;tab\&quot;&gt;&lt;tr&gt;&lt;td&gt;Please Login First to Continue!!&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;);</span>
+<span class="nc" id="L31">            return;</span>
+        }
+        try {
+<span class="nc" id="L34">            List&lt;Book&gt; books = bookService.getAllBooks();</span>
+<span class="nc" id="L35">            int i = 0;</span>
+<span class="nc" id="L36">            RequestDispatcher rd = req.getRequestDispatcher(&quot;CustomerHome.html&quot;);</span>
+<span class="nc" id="L37">            rd.include(req, res);</span>
+<span class="nc" id="L38">            StoreUtil.setActiveTab(pw, &quot;cart&quot;);</span>
+<span class="nc" id="L39">            pw.println(&quot;&lt;div class=\&quot;tab\&quot;&gt;Your order status is as below&lt;/div&gt;&quot;);</span>
+<span class="nc" id="L40">            pw.println(</span>
+                    &quot;&lt;div class=\&quot;tab\&quot;&gt;\r\n&quot; + &quot;		&lt;table&gt;\r\n&quot; + &quot;			&lt;tr&gt;\r\n&quot; + &quot;				\r\n&quot;
+                            + &quot;				&lt;th&gt;Book Code&lt;/th&gt;\r\n&quot; + &quot;				&lt;th&gt;Book Name&lt;/th&gt;\r\n&quot;
+                            + &quot;				&lt;th&gt;Book Author&lt;/th&gt;\r\n&quot; + &quot;				&lt;th&gt;Book Price&lt;/th&gt;\r\n&quot;
+                            + &quot;				&lt;th&gt;Quantity&lt;/th&gt;&lt;br/&gt;\r\n&quot; + &quot;				&lt;th&gt;Amount&lt;/th&gt;&lt;br/&gt;\r\n&quot;
+                            + &quot;			&lt;/tr&gt;&quot;);
+<span class="nc" id="L46">            double total = 0.0;</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            for (Book book : books) {</span>
+<span class="nc" id="L48">                double bPrice = book.getPrice();</span>
+<span class="nc" id="L49">                String bCode = book.getBarcode();</span>
+<span class="nc" id="L50">                String bName = book.getName();</span>
+<span class="nc" id="L51">                String bAuthor = book.getAuthor();</span>
+<span class="nc" id="L52">                int bQty = book.getQuantity();</span>
+<span class="nc" id="L53">                i = i + 1;</span>
+
+<span class="nc" id="L55">                String qt = &quot;qty&quot; + Integer.toString(i);</span>
+<span class="nc" id="L56">                int quantity = Integer.parseInt(req.getParameter(qt));</span>
+                try {
+<span class="nc" id="L58">                    String check1 = &quot;checked&quot; + Integer.toString(i);</span>
+<span class="nc" id="L59">                    String getChecked = req.getParameter(check1);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                    if (bQty &lt; quantity) {</span>
+<span class="nc" id="L61">                        pw.println(</span>
+                                &quot;&lt;/table&gt;&lt;div class=\&quot;tab\&quot; style='color:red;'&gt;Please Select the Qty less than Available Books Quantity&lt;/div&gt;&quot;);
+<span class="nc" id="L63">                        break;</span>
+                    }
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">                    if (getChecked.equals(&quot;pay&quot;)) {</span>
+<span class="nc" id="L67">                        pw.println(&quot;&lt;tr&gt;&lt;td&gt;&quot; + bCode + &quot;&lt;/td&gt;&quot;);</span>
+<span class="nc" id="L68">                        pw.println(&quot;&lt;td&gt;&quot; + bName + &quot;&lt;/td&gt;&quot;);</span>
+<span class="nc" id="L69">                        pw.println(&quot;&lt;td&gt;&quot; + bAuthor + &quot;&lt;/td&gt;&quot;);</span>
+<span class="nc" id="L70">                        pw.println(&quot;&lt;td&gt;&quot; + bPrice + &quot;&lt;/td&gt;&quot;);</span>
+<span class="nc" id="L71">                        pw.println(&quot;&lt;td&gt;&quot; + quantity + &quot;&lt;/td&gt;&quot;);</span>
+<span class="nc" id="L72">                        double amount = bPrice * quantity;</span>
+<span class="nc" id="L73">                        total = total + amount;</span>
+<span class="nc" id="L74">                        pw.println(&quot;&lt;td&gt;&quot; + amount + &quot;&lt;/td&gt;&lt;/tr&gt;&quot;);</span>
+<span class="nc" id="L75">                        bQty = bQty - quantity;</span>
+<span class="nc" id="L76">                        System.out.println(bQty);</span>
+<span class="nc" id="L77">                        bookService.updateBookQtyById(bCode, bQty);</span>
+                    }
+<span class="nc" id="L79">                } catch (Exception e) {</span>
+<span class="nc" id="L80">                }</span>
+<span class="nc" id="L81">            }</span>
+<span class="nc" id="L82">            pw.println(&quot;&lt;/table&gt;&lt;br/&gt;&lt;div class='tab'&gt;Total Paid Amount: &quot; + total + &quot;&lt;/div&gt;&quot;);</span>
+//            String fPay = req.getParameter(&quot;f_pay&quot;);
+<span class="nc" id="L84">        } catch (Exception e) {</span>
+<span class="nc" id="L85">            e.printStackTrace();</span>
+<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
